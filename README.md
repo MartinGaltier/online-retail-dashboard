@@ -1,5 +1,7 @@
 # Tableau de bord des ventes e-commerce – Online Retail (UCI)
 
+[![Tests](https://github.com/MartinGaltier/online-retail-dashboard/actions/workflows/tests.yml/badge.svg)](https://github.com/MartinGaltier/online-retail-dashboard/actions/workflows/tests.yml)
+
 Application Streamlit qui aide un responsable commercial à comprendre **l'évolution des ventes**,
 **les produits et marchés qui font le chiffre d'affaires**, **la fidélité des clients** et **le poids
 des annulations et retours**, à partir des transactions réelles d'un détaillant en ligne britannique
