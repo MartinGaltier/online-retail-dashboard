@@ -1,0 +1,5 @@
+# Préparation des données et tests, en plus de l'application.
+#   uv pip compile requirements-dev.in -o requirements-dev.txt --python-version 3.12
+-r requirements.in
+openpyxl==3.1.5
+pytest==9.1.1
