@@ -1,0 +1,436 @@
+{
+  "source": {
+    "page": "https://archive.ics.uci.edu/dataset/352/online+retail",
+    "archive": "https://archive.ics.uci.edu/static/public/352/online+retail.zip",
+    "fichier": "Online Retail.xlsx",
+    "sha256": "43465a06f2ccf7c8b5bd2892bc7defb52f97487934fe93b16ae4c3936424676d",
+    "citation": "Chen, D. (2015). Online Retail [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C5BW33",
+    "licence": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+    "devise": "Livre sterling (GBP), d'après la documentation de la source"
+  },
+  "brut": {
+    "lignes": 541909,
+    "colonnes": {
+      "InvoiceNo": "str",
+      "StockCode": "str",
+      "Description": "str",
+      "Quantity": "int64",
+      "InvoiceDate": "datetime64[us]",
+      "UnitPrice": "float64",
+      "CustomerID": "float64",
+      "Country": "str"
+    },
+    "valeurs_manquantes": {
+      "InvoiceNo": 0,
+      "StockCode": 0,
+      "Description": 1454,
+      "Quantity": 0,
+      "InvoiceDate": 0,
+      "UnitPrice": 0,
+      "CustomerID": 135080,
+      "Country": 0
+    },
+    "premiere_date": "2010-12-01 08:26:00",
+    "derniere_date": "2011-12-09 12:50:00",
+    "factures_distinctes": 25900,
+    "codes_article_distincts": 4070,
+    "clients_distincts": 4372,
+    "pays_distincts": 38,
+    "montant_total_brut": 9747747.93
+  },
+  "controles_numeriques": {
+    "quantity": {
+      "min": -80995.0,
+      "p01": -2.0,
+      "mediane": 3.0,
+      "p99": 100.0,
+      "max": 80995.0,
+      "negatifs": 10624,
+      "nuls": 0
+    },
+    "unit_price": {
+      "min": -11062.06,
+      "p01": 0.19,
+      "mediane": 2.08,
+      "p99": 18.0,
+      "max": 38970.0,
+      "negatifs": 2,
+      "nuls": 2515
+    }
+  },
+  "regles": [
+    {
+      "code": "R1",
+      "titre": "Doublons exacts",
+      "constat": "Lignes identiques sur les 8 colonnes (même facture, article, quantité, prix, minute, client et pays). Elles sont interprétées comme des saisies répétées.",
+      "traitement": "Une seule occurrence est conservée ; les copies sont supprimées.",
+      "lignes": 5268,
+      "montant": 21740.98
+    },
+    {
+      "code": "R2",
+      "titre": "Codes article en minuscules",
+      "constat": "Certains codes existent en minuscules et en majuscules (ex. 85123a / 85123A).",
+      "traitement": "Codes convertis en majuscules ; espaces superflus retirés des libellés.",
+      "lignes": 1977,
+      "montant": null
+    },
+    {
+      "code": "R3",
+      "titre": "Identifiant client manquant",
+      "constat": "Une partie des lignes n'a pas d'identifiant client.",
+      "traitement": "Lignes conservées pour les indicateurs de ventes ; exclues seulement des indicateurs par client (clients identifiés, achats répétés).",
+      "lignes": 135037,
+      "montant": 1447487.53
+    },
+    {
+      "code": "R5",
+      "titre": "Factures sur plusieurs horodatages",
+      "constat": "43 factures ont des lignes saisies à des minutes différentes (écart maximal : 1 min).",
+      "traitement": "La date retenue pour toutes les lignes d'une facture est son premier horodatage, afin qu'un filtre de dates ne coupe jamais une commande.",
+      "lignes": 3320,
+      "montant": null
+    },
+    {
+      "code": "R6",
+      "titre": "Codes hors produit",
+      "constat": "Frais de port, commissions Amazon, frais bancaires, remises, échantillons, saisies manuelles, bons cadeaux et ajustements de créance utilisent des codes article spécifiques.",
+      "traitement": "Lignes conservées et signalées ; exclues des indicateurs, qui portent sur les ventes de produits. Leur total est indiqué séparément.",
+      "lignes": 2940,
+      "montant": -45311.21
+    },
+    {
+      "code": "R7",
+      "titre": "Ventes extrêmes annulées le jour même",
+      "constat": "3 lignes de vente de produits atteignent au moins 10 000 £, alors que 99 % des lignes de vente sont inférieures à 179,00 £. 3 d'entre elles sont annulées le jour même par un avoir du même client et du même montant.",
+      "traitement": "Chaque vente concernée et son avoir sont exclus ensemble des indicateurs (erreurs de saisie corrigées). Leur effet net est nul ; les garder gonflerait les ventes et les annulations du même montant.",
+      "lignes": 6,
+      "montant": 284623.2
+    },
+    {
+      "code": "R8",
+      "titre": "Quantités négatives hors facture d'annulation",
+      "constat": "Lignes à quantité négative et prix nul, sans client, souvent libellées « damaged », « check », « thrown away » : mouvements de stock internes.",
+      "traitement": "Conservées et signalées ; sans valeur monétaire, elles n'entrent pas dans les indicateurs de ventes ni d'annulations.",
+      "lignes": 1336,
+      "montant": 0.0
+    },
+    {
+      "code": "R9",
+      "titre": "Prix unitaires nuls",
+      "constat": "Lignes de facture à prix nul (articles offerts, corrections, lignes sans libellé). Leur montant est nul.",
+      "traitement": "Conservées et signalées ; non comptées comme ventes (elles créeraient des commandes sans chiffre d'affaires).",
+      "lignes": 1157,
+      "montant": 0.0
+    },
+    {
+      "code": "R10",
+      "titre": "Prix négatifs (ajustement de créance)",
+      "constat": "Les seules valeurs de prix négatives proviennent des factures « A » libellées « Adjust bad debt ».",
+      "traitement": "Écritures comptables conservées et signalées ; exclues des indicateurs.",
+      "lignes": 3,
+      "montant": -11062.06
+    }
+  ],
+  "paires_extremes_exclues": [
+    {
+      "facture_vente": "541431",
+      "facture_avoir": "C541433",
+      "code_article_vente": "23166",
+      "code_article_avoir": "23166",
+      "quantite": 74215,
+      "montant": 77183.6,
+      "delai_minutes": 16
+    },
+    {
+      "facture_vente": "556444",
+      "facture_avoir": "C556445",
+      "code_article_vente": "22502",
+      "code_article_avoir": "M",
+      "quantite": 60,
+      "montant": 38970.0,
+      "delai_minutes": 3
+    },
+    {
+      "facture_vente": "581483",
+      "facture_avoir": "C581484",
+      "code_article_vente": "23843",
+      "code_article_avoir": "23843",
+      "quantite": 80995,
+      "montant": 168469.6,
+      "delai_minutes": 12
+    }
+  ],
+  "codes_hors_produit": [
+    {
+      "categorie": "Ajustement de créance douteuse (B)",
+      "code": "B",
+      "lignes": 3,
+      "montant": -11062.06
+    },
+    {
+      "categorie": "Saisie manuelle (M)",
+      "code": "M",
+      "lignes": 567,
+      "montant": -69031.64
+    },
+    {
+      "categorie": "Bons cadeaux (gift_0001_*)",
+      "code": "GIFT_0001_20",
+      "lignes": 10,
+      "montant": 167.05
+    },
+    {
+      "categorie": "Bons cadeaux (gift_0001_*)",
+      "code": "GIFT_0001_10",
+      "lignes": 9,
+      "montant": 74.97
+    },
+    {
+      "categorie": "Bons cadeaux (gift_0001_*)",
+      "code": "GIFT_0001_30",
+      "lignes": 8,
+      "montant": 175.53
+    },
+    {
+      "categorie": "Bons cadeaux (gift_0001_*)",
+      "code": "GIFT_0001_50",
+      "lignes": 4,
+      "montant": 167.56
+    },
+    {
+      "categorie": "Bons cadeaux (gift_0001_*)",
+      "code": "GIFT_0001_40",
+      "lignes": 3,
+      "montant": 100.7
+    },
+    {
+      "categorie": "Commissions et frais (AMAZONFEE, BANK CHARGES, CRUK)",
+      "code": "BANK CHARGES",
+      "lignes": 37,
+      "montant": -7175.64
+    },
+    {
+      "categorie": "Commissions et frais (AMAZONFEE, BANK CHARGES, CRUK)",
+      "code": "AMAZONFEE",
+      "lignes": 34,
+      "montant": -221520.5
+    },
+    {
+      "categorie": "Commissions et frais (AMAZONFEE, BANK CHARGES, CRUK)",
+      "code": "CRUK",
+      "lignes": 16,
+      "montant": -7933.43
+    },
+    {
+      "categorie": "Échantillons (S)",
+      "code": "S",
+      "lignes": 62,
+      "montant": -3039.65
+    },
+    {
+      "categorie": "Frais de port (POST, DOT, C2)",
+      "code": "POST",
+      "lignes": 1256,
+      "montant": 66230.64
+    },
+    {
+      "categorie": "Frais de port (POST, DOT, C2)",
+      "code": "DOT",
+      "lignes": 710,
+      "montant": 206245.48
+    },
+    {
+      "categorie": "Frais de port (POST, DOT, C2)",
+      "code": "C2",
+      "lignes": 144,
+      "montant": 6986.0
+    },
+    {
+      "categorie": "Remise (D)",
+      "code": "D",
+      "lignes": 77,
+      "montant": -5696.22
+    }
+  ],
+  "types_de_lignes": [
+    {
+      "type": "vente",
+      "libelle": "Vente de produit",
+      "lignes": 522537,
+      "montant": 9962596.12,
+      "lignes_sans_client": 131387,
+      "inclus_dans_indicateurs": true
+    },
+    {
+      "type": "annulation",
+      "libelle": "Annulation / retour de produit",
+      "lignes": 8666,
+      "montant": -230247.96,
+      "lignes_sans_client": 162,
+      "inclus_dans_indicateurs": true
+    },
+    {
+      "type": "hors_produit",
+      "libelle": "Ligne hors produit (port, frais, remises, saisies manuelles)",
+      "lignes": 2936,
+      "montant": 4720.85,
+      "lignes_sans_client": 1026,
+      "inclus_dans_indicateurs": false
+    },
+    {
+      "type": "vente_prix_nul",
+      "libelle": "Ligne à prix nul",
+      "lignes": 1157,
+      "montant": 0.0,
+      "lignes_sans_client": 1123,
+      "inclus_dans_indicateurs": false
+    },
+    {
+      "type": "ajustement_stock",
+      "libelle": "Ajustement de stock (quantité négative, prix nul)",
+      "lignes": 1336,
+      "montant": 0.0,
+      "lignes_sans_client": 1336,
+      "inclus_dans_indicateurs": false
+    },
+    {
+      "type": "erreur_saisie_annulee",
+      "libelle": "Vente extrême annulée le jour même et son avoir",
+      "lignes": 6,
+      "montant": 0.0,
+      "lignes_sans_client": 0,
+      "inclus_dans_indicateurs": false
+    },
+    {
+      "type": "ajustement_creance",
+      "libelle": "Ajustement comptable de créance (facture « A »)",
+      "lignes": 3,
+      "montant": -11062.06,
+      "lignes_sans_client": 3,
+      "inclus_dans_indicateurs": false
+    }
+  ],
+  "couverture_temporelle": {
+    "premier_jour": "2010-12-01",
+    "dernier_jour": "2011-12-09",
+    "mois": [
+      {
+        "mois": "2010-12",
+        "premier_jour": "2010-12-01",
+        "dernier_jour": "2010-12-23",
+        "jours_avec_activite": 20,
+        "lignes": 41981,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-01",
+        "premier_jour": "2011-01-04",
+        "dernier_jour": "2011-01-31",
+        "jours_avec_activite": 24,
+        "lignes": 34900,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-02",
+        "premier_jour": "2011-02-01",
+        "dernier_jour": "2011-02-28",
+        "jours_avec_activite": 24,
+        "lignes": 27479,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-03",
+        "premier_jour": "2011-03-01",
+        "dernier_jour": "2011-03-31",
+        "jours_avec_activite": 27,
+        "lignes": 36439,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-04",
+        "premier_jour": "2011-04-01",
+        "dernier_jour": "2011-04-28",
+        "jours_avec_activite": 21,
+        "lignes": 29701,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-05",
+        "premier_jour": "2011-05-01",
+        "dernier_jour": "2011-05-31",
+        "jours_avec_activite": 25,
+        "lignes": 36782,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-06",
+        "premier_jour": "2011-06-01",
+        "dernier_jour": "2011-06-30",
+        "jours_avec_activite": 26,
+        "lignes": 36609,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-07",
+        "premier_jour": "2011-07-01",
+        "dernier_jour": "2011-07-31",
+        "jours_avec_activite": 26,
+        "lignes": 39267,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-08",
+        "premier_jour": "2011-08-01",
+        "dernier_jour": "2011-08-31",
+        "jours_avec_activite": 26,
+        "lignes": 35064,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-09",
+        "premier_jour": "2011-09-01",
+        "dernier_jour": "2011-09-30",
+        "jours_avec_activite": 26,
+        "lignes": 49861,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-10",
+        "premier_jour": "2011-10-02",
+        "dernier_jour": "2011-10-31",
+        "jours_avec_activite": 26,
+        "lignes": 59969,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-11",
+        "premier_jour": "2011-11-01",
+        "dernier_jour": "2011-11-30",
+        "jours_avec_activite": 26,
+        "lignes": 83343,
+        "statut": "complet"
+      },
+      {
+        "mois": "2011-12",
+        "premier_jour": "2011-12-01",
+        "dernier_jour": "2011-12-09",
+        "jours_avec_activite": 8,
+        "lignes": 25246,
+        "statut": "partiel"
+      }
+    ]
+  },
+  "clients": {
+    "lignes_de_vente_sans_client": 131387,
+    "part_lignes_de_vente_sans_client": 0.25144056784495644,
+    "part_ca_ventes_sans_client": 0.15156608391601667,
+    "clients_avec_plusieurs_pays": 8
+  },
+  "controle_coherence": {
+    "montant_apres_doublons": 9726006.95,
+    "somme_par_type_de_ligne": 9726006.95,
+    "ecart": 0.0,
+    "lignes_finales": 536641
+  }
+}
